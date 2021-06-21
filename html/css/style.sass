@@ -1,0 +1,242 @@
+//Whole front end
+//$font-stack: 
+$banner-color: #375B75
+
+body
+    margin: 0
+
+// index
+#indexPage
+    background-image: linear-gradient(to right, lightgrey, grey, $banner-color, grey, lightgrey) 
+
+.loginCard
+    width: 70%
+    margin-top: 10%
+    margin-left: auto
+    margin-right: auto
+    background-color: grey
+    border-radius: 25px
+    padding: 5%
+    max-width: 500px
+    max-height: 300px
+    color: white
+    @at-root #{&}__boxes
+        margin-top: 5%
+        width: 70%
+        margin-left: auto
+        margin-right: auto
+        text-align: center 
+    @at-root #{&}__title
+        margin-top: 5%
+        width: 70%
+        margin-left: auto
+        margin-right: auto
+        text-align: center
+
+
+// Employee Page
+
+.navBar
+    height: 50px
+    background-color: $banner-color
+    color: lightgrey
+    @at-root #{&}__group
+            display: flex
+            flex-wrap: wrap
+            position: absolute
+            right: 10px
+            top: 20px
+            justify-content: flex-end
+            width:auto
+            transition: top 6s ease-out 0s
+            transition: right 6s ease-out 0s
+            @at-root #{&}__links
+                position: relative
+                font-size: 18px
+                top: 50%
+                height: 18px
+                margin-left: 20px
+                padding: 5px
+.navBar__group__links:hover,                  
+.navBar__group__links:active
+   color: white  
+   cursor: pointer               
+
+.tables
+    width: 80%
+    margin-left: auto
+    margin-right: auto
+    display: flex
+    flex-wrap: wrap
+    overflow: hidden
+    transition: height 2s ease-out
+    @at-root #{&}__reimbursement
+        border: 1px solid black
+        margin-left: auto
+        margin-right: auto
+        overflow: hidden
+        transition: height 2s ease-out
+        @at-root #{&} th
+            background-color: $banner-color
+            color: white 
+        @at-root #{&} tr:nth-child(even) 
+            background-color: #f2f2f2
+        @at-root #{&} th, td
+            border-spacing: 0px
+            border: 1px solid #ddd
+            padding: 8px
+            text-align: center
+        @at-root #{&} tr:hover
+            background-color: lightgrey
+
+.approveOrDeny:hover,
+.approveOrDeny:focus 
+    color: white
+    text-decoration: none
+    cursor: pointer
+
+.popUp
+    display: none
+    position: fixed
+    z-index: 1
+    left: 0
+    top: 0
+    width: 100%
+    height: 100%
+    overflow: auto
+    background-color: rgb(0,0,0)
+    background-color: rgba(0,0,0,0.4)
+    @at-root #{&}__content 
+        background-color: #fefefe
+        margin: 15% auto
+        padding: 20px
+        border: 1px solid #888
+        width: 80%
+    @at-root #{&}__close 
+        color: #aaa
+        float: right
+        font-size: 28px
+        font-weight: bold
+
+.popUp__close:hover,
+.popUp__close:focus 
+    color: black
+    text-decoration: none
+    cursor: pointer
+
+.plusBox
+    width: 80%
+    margin-left: auto
+    margin-right: auto
+    display: flex
+    flex-wrap: wrap
+.plus
+    transform: translate(-50%, -50%) rotate(0)
+    width: 1rem
+    height: 2px
+    -webkit-transition: -webkit-transform .2s ease-out
+    transition: -webkit-transform .2s ease-out
+    transition: transform .2s ease-out
+    transition: transform .2s ease-out, -webkit-transform .2s ease-out
+    display: block
+    background: #000000
+    user-select: none
+    cursor: pointer
+    
+.plus::after 
+    transform: translateY(0px) rotate(90deg)
+
+.plus--acitve::after
+    transform: translateY(0px) rotate(0)
+    
+.plus::after 
+    content: ""
+    -webkit-transition: -webkit-transform .2s ease-out
+    transition: -webkit-transform .2s ease-out
+    transition: transform .2s ease-out
+    transition: transform .2s ease-out, -webkit-transform .2s ease-out
+    display: block
+    border-radius: 1px
+    background: #000000
+    position: absolute
+    height: 2px
+    width: 100%
+    cursor: pointer
+
+.plus__btn
+    border: none
+    margin-top: 30px
+    margin-left: 15px
+    user-select: none
+    display: block
+
+.active
+    display: block
+    overflow: hidden
+    transition: max-height 2s ease-out
+
+.inactive
+    max-height: 0
+    transition: max-height 0.5s ease-out
+
+//Request Reimbursement
+.requestCard
+    width: 70%
+    margin-top: 10%
+    margin-left: auto
+    margin-right: auto
+    background-color: grey
+    border-radius: 25px
+    padding: 5%
+    max-width: 500px
+    max-height: 300px
+    color: white
+    @at-root #{&}__boxes
+        margin-top: 5%
+        width: 70%
+        margin-left: auto
+        margin-right: auto
+        text-align: center 
+    @at-root #{&}__title
+        margin-top: 5%
+        width: 70%
+        margin-left: auto
+        margin-right: auto
+        text-align: center
+.messageBox
+    width: 100%
+    height: 100px
+
+
+// Statistics Page
+.statisticsTable
+    border: 1px solid black
+    margin-left: auto
+    margin-right: auto
+    width: 100%
+    overflow: hidden
+    transition: max-height 0.6s ease-out
+    @at-root #{&} th
+        background-color: $banner-color
+        color: white;
+    @at-root #{&} tr:nth-child(even)
+        background-color: #f2f2f2
+    @at-root #{&} th, td
+        border-spacing: 0px
+        border: 1px solid #ddd
+        padding: 8px
+        text-align: center
+    @at-root #{&} tr:hover
+        background-color: lightgrey
+
+.statisticsCharts
+    width: 80%
+    margin-left: auto
+    margin-right: auto
+    display: flex
+    flex-wrap: wrap
+    @at-root #{&}__chart
+        margin-left: auto
+        margin-right: auto
+        display: flex
+        flex-wrap: wrap

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="css/style.css" rel="stylesheet"/>
+    <title>Login</title>
+</head>
+<body id = "indexPage">
+    <div class="loginCard">
+        <h2 class="loginCard__title">Welcome to the Dragon Lair</h2>
+        <div class="loginCard__boxes">
+            <label for="usernameInput">Username</label>
+            <input name = "usernameInput" id = "usernameInput" type="text" placeholder="Username">
+        </div>
+        <div class="loginCard__boxes">
+            <label for="passwordInput">Password</label>
+            <input name = "passwordInput" id = "passwordInput" type="password" placeholder="Password">
+        </div>
+        <div class="loginCard__boxes">
+            <button id="login" onclick="loginRequest()">Login</button>
+        </div>
+    </div> 
+</body>
+<script src="js/index.js"></script>
+<script>
+    const usernameInput = document.getElementById("usernameInput");
+    const passwordInput = document.getElementById("passwordInput");
+    async function loginRequest(){
+        const response = await fetch(`http://localhost:5000/employee?username=${usernameInput.value}&password=${passwordInput.value}`);
+        const login = await response.json();
+        console.log(login);
+        if(login.employeeID === 0){
+            alert("Invalid Username or Password")
+        }
+        else{
+            sessionStorage.setItem("employeeId", login.employeeID)
+            sessionStorage.setItem("employeeIsManager", login.employeeIsManager)
+            window.location.href = "employee_page.html";
+        }
+        
+    }
+</script>
+</html>

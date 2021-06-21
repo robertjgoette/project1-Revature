@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="css/style.css" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Reimbursement</title>
+</head>
+<body id = "requestReimbursementPage">
+    <header>
+        <div class="navBar">
+            <h2 style="margin: 0;padding-top: 10px;">The Dragon Lair</h2>
+            <div id="top-bar" class="navBar__group">
+                <div id="mainButtons" class="navBar__group__links">
+                    <a id="backToHome" onclick="backToHome()">Back To Home</a>
+                </div>
+                <a id="logOut" class="navBar__group__links" onclick="logOut()">Log Out</a>
+            </div>
+        </div>
+    </header>
+    <div class="requestCard">
+        <h2 class="requestCard__title">Request Reimbursement</h2>
+        <div class="requestCard__boxes">
+            <label for="amountInput">Amount:</label><br>
+            <input type="number" id="amountInput" name="amountInput"><br>
+        </div>
+        <div class="requestCard__boxes">
+            <label for="messageInput">Message:</label><br>
+            <textarea class="messageBox" id="messageInput" name="messageInput" maxlength = "200"></textarea>
+        </div>
+        <div class="requestCard__boxes">
+            <button id="sendReimbursement" onclick="sendReimbursement()">Sumit</button>
+        </div>
+    </div>
+
+
+</body>
+<script>
+    const employeeIsManager = sessionStorage.getItem("employeeIsManager");
+    const employeeId = sessionStorage.getItem("employeeId");
+    const amountInput = document.getElementById("amountInput");
+    const messageInput = document.getElementById("messageInput");
+
+    function backToHome(){
+        window.location.href = "employee_page.html";
+    }
+    function logOut(){
+        sessionStorage.setItem("employeeId", 0);
+        window.location.href = "index.html";
+    }
+    async function sendReimbursement(){
+        console.log(messageInput.value)
+        if(Number(amountInput.value) === 0){
+            alert("No amount given")
+        }else{
+            const reimbursement = 
+                {"reimbursementId": 0,
+                "reimbursementAmount": Number(amountInput.value),
+                "reimbursementState": "pending",
+                "reimbursementLastDayModified": Number(Math.floor(Date.now()/ 1000)),
+                "reimbursementMessage": messageInput.value,
+                "reimbursementResponse": null,
+                "reviewerId": null,
+                "employeeId": Number(employeeId)};
+
+            const typeOfMethod ={
+                method:"POST",
+                headers:{'Content-Type':"application/json"},
+                body: JSON.stringify(reimbursement)
+            };
+
+            await fetch ('http://localhost:5000/reimbursement', typeOfMethod);
+            window.location.href = "employee_page.html";
+        }
+    }
+    //Take form and put in body
+</script>
+</html>

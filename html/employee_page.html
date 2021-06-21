@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="css/style.css" rel='stylesheet'/>
+    <title>Employee Page</title>
+</head>
+<body id = "employeePage">
+    <header>
+        <div class="navBar">
+            <h2 style="margin: 0;padding-top: 10px;">The Dragon Lair</h2>
+            <div id="top-bar" class="navBar__group">
+                <div id="mainButtons" class="navBar__group__links">
+                    <a id="requestReimbursement" onclick="requestReimbursement()">Request Reimbursement</a>
+                </div>
+                <a id="logOut" class="navBar__group__links" onclick="logOut()">Log Out</a>
+            </div>
+        </div>
+    </header>
+    <div id="pendingBox" class="plusBox" onclick="flipPlus(0)">
+        <h3>Pending</h3>
+        <div  class="plus__btn">
+            <span id="pendingPlus" class="plus"></span>
+        </div>
+    </div>
+    <div id="reimbursementPending" class="tables inactive">
+        <table id="reimbursementPendingTable" class="tables__reimbursement">
+            <thead id="reimbursementPendingTableHead"></thead>
+            <tbody id="reimbursementPendingTableBody"></tbody>
+        </table>
+    </div>
+    <div class="plusBox" onclick="flipPlus(1)">
+        <h3>Approved</h3>
+        <div class="plus__btn">
+            <span id="approvedPlus" class="plus"></span>
+        </div>
+    </div>
+    <div id="reimbursementApproved"class="tables inactive">
+        <table id="reimbursementApprovedTable" class="tables__reimbursement">
+            <thead id="reimbursementApprovedTableHead"></thead>
+            <tbody id="reimbursementApprovedTableBody"></tbody>
+        </table>
+    </div>
+    <div class="plusBox" onclick="flipPlus(2)">
+        <h3>Denied</h3>
+        <div class="plus__btn">
+            <span id="deniedPlus" class="plus"></span>
+        </div>
+    </div>
+    <div id="reimbursementDenied" class="tables inactive">
+        <table id="reimbursementDeniedTable" class="tables__reimbursement">
+            <thead id="reimbursementDeniedTableHead"></thead>
+            <tbody id="reimbursementDeniedTableBody"></tbody>
+        </table>
+    </div>
+
+
+
+    <div id="popUp" class="popUp">
+        <div class="popUp__content">
+            <span onclick="closePopUp()"id = "close" class="popUp__close">X</span>
+            <h3 id="popUpContentHeader"></h3>
+            <label for="reimbursementResponse">Reimbursement Response</label><br>
+            <textarea class="messageBox" id="reimbursementResponse" name="reimbursementResponse" maxlength = "200"></textarea><br>
+            <div id="reimbursementResponseSumit"></div>
+        </div>
+    </div>
+</body>
+
+<script>
+    const employeeIsManager = sessionStorage.getItem("employeeIsManager");
+    const employeeId = sessionStorage.getItem("employeeId");
+    const reimbursementPendingTableBody = document.getElementById("reimbursementPendingTableBody");
+    const reimbursementDeniedTableBody = document.getElementById("reimbursementDeniedTableBody");
+    const reimbursementApprovedTableBody = document.getElementById("reimbursementApprovedTableBody");
+    const reimbursementPendingTableHead = document.getElementById("reimbursementPendingTableHead");
+    const reimbursementDeniedTableHead = document.getElementById("reimbursementDeniedTableHead");
+    const reimbursementApprovedTableHead = document.getElementById("reimbursementApprovedTableHead");
+    const mainButtons = document.getElementById("mainButtons");
+    const popUp = document.getElementById("popUp");
+    const close = document.getElementById("close");
+    const popUpContentHeader = document.getElementById("popUpContentHeader");
+    const reimbursementResponse = document.getElementById("reimbursementResponse");
+    const reimbursementResponseSumit = document.getElementById("reimbursementResponseSumit");
+    const pendingPlus = document.getElementById("pendingPlus");
+    const approvedPlus = document.getElementById("approvedPlus");
+    const deniedPlus = document.getElementById("deniedPlus");
+    const reimbursementPending = document.getElementById("reimbursementPending");
+    const reimbursementApproved = document.getElementById("reimbursementApproved");
+    const reimbursementDenied = document.getElementById("reimbursementDenied");
+    let isApprovedArray = []
+    let isDeniedArray = []
+
+    console.log(employeeIsManager)
+    console.log(employeeId)
+    if(employeeIsManager === "false"){
+        getAllForEmp()
+    }else{
+        getAll()
+    }
+    function flipPlus(plusId){
+        if(plusId === 0){
+            pendingPlus.classList.toggle("plus--acitve")
+            if (reimbursementPending.style.maxHeight){
+                reimbursementPending.style.maxHeight = null;
+            } else {
+                reimbursementPending.style.maxHeight = reimbursementPending.scrollHeight + "px";
+            }
+        }else if(plusId === 1){
+            approvedPlus.classList.toggle("plus--acitve")
+            if (reimbursementApproved.style.maxHeight){
+                reimbursementApproved.style.maxHeight = null;
+            } else {
+                reimbursementApproved.style.maxHeight = reimbursementApproved.scrollHeight + "px";
+            }
+        }else{
+            deniedPlus.classList.toggle("plus--acitve")
+            if (reimbursementDenied.style.maxHeight){
+                reimbursementDenied.style.maxHeight = null;
+            } else {
+                reimbursementDenied.style.maxHeight = reimbursementDenied.scrollHeight + "px";
+            }
+        }
+    }
+    async function getAll(){
+        reimbursementPendingTable.style.maxHeight = null;
+        const response = await fetch("http://localhost:5000/reimbursement/all");
+        const reimbursementTable = await response.json();
+        let statButton = "<a id='statButton' onclick=statPage()>Statistics</a>";
+        reimbursementPendingTableBodyFill = "";
+        reimbursementDeniedTableBodyFill = "";
+        reimbursementApprovedTableBodyFill = "";
+        let reimbursementPendingTableHeadFill = "<th>Day Added</th><th>Employee ID</th><th>Amount</th><th>Message</th><th>Approve/Deny</th>"
+        let reimbursementTableHeadFill = "<th>Last Day Modified</th><th>Employee ID</th><th>Amount</th><th>Who reviewed it</th><th>Response</th>"
+
+        reimbursementTable.map(reimbursement => isPendingM(reimbursement))
+        reimbursementTable.map(reimbursement => isApprovedM(reimbursement))
+        reimbursementTable.map(reimbursement => isDeniedM(reimbursement))
+
+        reimbursementPendingTableHead.innerHTML = reimbursementPendingTableHeadFill;
+        reimbursementDeniedTableHead.innerHTML = reimbursementTableHeadFill;
+        reimbursementApprovedTableHead.innerHTML = reimbursementTableHeadFill;
+        reimbursementPendingTableBody.innerHTML = reimbursementPendingTableBodyFill;
+        reimbursementDeniedTableBody.innerHTML = reimbursementDeniedTableBodyFill;
+        reimbursementApprovedTableBody.innerHTML = reimbursementApprovedTableBodyFill;
+
+        mainButtons.innerHTML = statButton;
+    }
+    async function getAllForEmp(){
+        const response = await fetch(`http://localhost:5000/reimbursement/all/${employeeId}`);
+        const reimbursementTable = await response.json();
+        reimbursementPendingTableBodyFill = "";
+        reimbursementDeniedTableBodyFill = "";
+        reimbursementApprovedTableBodyFill = "";
+        let reimbursementPendingTableHeadFill = "<th>Day Added</th><th>Amount</th><th>Message</th>"
+        let reimbursementTableHeadFill = "<th>Last Day Modified</th><th>Amount</th><th>Who reviewed it</th><th>Response</th>"
+        console.log(reimbursementTable)
+        reimbursementTable.map(reimbursement => isPending(reimbursement))
+        reimbursementTable.map(reimbursement => isApproved(reimbursement))
+        reimbursementTable.map(reimbursement => isDenied(reimbursement))
+
+        reimbursementPendingTableHead.innerHTML = reimbursementPendingTableHeadFill;
+        reimbursementDeniedTableHead.innerHTML = reimbursementTableHeadFill;
+        reimbursementApprovedTableHead.innerHTML = reimbursementTableHeadFill;
+        reimbursementPendingTableBody.innerHTML = reimbursementPendingTableBodyFill;
+        reimbursementDeniedTableBody.innerHTML = reimbursementDeniedTableBodyFill;
+        reimbursementApprovedTableBody.innerHTML = reimbursementApprovedTableBodyFill;
+    }
+
+    // Table builders for managers
+    function isPendingM(reimbursement){
+        if(reimbursement.reimbursementState === "pending"){
+            reimbursementPendingTableBodyFill += `<tr> 
+            <td>${unixToDate(reimbursement.reimbursementLastDayModified)}</td>
+            <td>${reimbursement.employeeId}</td>
+            <td>${reimbursement.reimbursementAmount}</td>
+            <td>${reimbursement.reimbursementMessage}</td>
+            <td><a id="approve${reimbursement.reimbursementId}" class="approveOrDeny" onclick = approvePopUp(${reimbursement.reimbursementId})>Approve</a>/<a id="deny${reimbursement.reimbursementId}" class="approveOrDeny" onclick = denyPopUp(${reimbursement.reimbursementId})>Deny</a></td>
+            </tr>`
+        }
+    }
+    function isDeniedM(reimbursement){
+        if(reimbursement.reimbursementState === "denied"){
+            isDeniedArray += reimbursement
+            reimbursementDeniedTableBodyFill += `<tr> 
+            <td>${unixToDate(reimbursement.reimbursementLastDayModified)}</td>
+            <td>${reimbursement.employeeId}</td>
+            <td>${reimbursement.reimbursementAmount}</td>
+            <td>${reimbursement.reviewerId}</td>
+            <td>${reimbursement.reimbursementResponse}</td>
+            </tr>`
+        }
+    }
+    function isApprovedM(reimbursement){
+        if(reimbursement.reimbursementState === "approved"){
+            isApprovedArray += reimbursement
+            reimbursementApprovedTableBodyFill += `<tr> 
+            <td>${unixToDate(reimbursement.reimbursementLastDayModified)}</td>
+            <td>${reimbursement.employeeId}</td>
+            <td>${reimbursement.reimbursementAmount}</td>
+            <td>${reimbursement.reviewerId}</td>
+            <td>${reimbursement.reimbursementResponse}</td>
+            </tr>`
+        }
+    }
+
+    // Table builders for employees
+    function isPending(reimbursement){
+        if(reimbursement.reimbursementState === "pending"){
+            reimbursementPendingTableBodyFill += `<tr> 
+            <td>${unixToDate(reimbursement.reimbursementLastDayModified)}</td>
+            <td>${reimbursement.reimbursementAmount}</td>
+            <td>${reimbursement.reimbursementMessage}</td>
+            </tr>`
+        }
+    }
+    function isDenied(reimbursement){
+        if(reimbursement.reimbursementState === "denied"){
+            reimbursementDeniedTableBodyFill += `<tr> 
+            <td>${unixToDate(reimbursement.reimbursementLastDayModified)}</td>
+            <td>${reimbursement.reimbursementAmount}</td>
+            <td>${reimbursement.reviewerId}</td>
+            <td>${reimbursement.reimbursementResponse}</td>
+            </tr>`
+        }
+    }
+    function isApproved(reimbursement){
+        if(reimbursement.reimbursementState === "approved"){
+            reimbursementApprovedTableBodyFill += `<tr> 
+            <td>${unixToDate(reimbursement.reimbursementLastDayModified)}</td>
+            <td>${reimbursement.reimbursementAmount}</td>
+            <td>${reimbursement.reviewerId}</td>
+            <td>${reimbursement.reimbursementResponse}</td>
+            </tr>`
+        }
+    }
+    function statPage(){
+        window.location.href = "statistics_page.html";
+    }
+    function logOut(){
+        sessionStorage.setItem("employeeId", 0);
+        window.location.href = "index.html";
+    }
+    function closePopUp(){
+        reimbursementResponse.value =""
+        popUp.style.display = "none";
+    }
+    window.onclick = function(event) {
+        if (event.target == popUp) {
+            modal.style.display = "none";
+        }
+    }
+    function approvePopUp(reimbursementId){
+        popUp.style.display = "block";
+        let popUpContentHeaderFill = `Are you sure you want to approve Reimbursement ${reimbursementId}?`;
+        let approveButton=`<button id='reimbursementResponseSumitApprove' onclick = approve(${reimbursementId})>Approve</button>`;
+        popUpContentHeader.innerHTML = popUpContentHeaderFill;
+        reimbursementResponseSumit.innerHTML = approveButton;
+    }
+    function denyPopUp(reimbursementId){
+        popUp.style.display = "block";
+        let popUpContentHeaderFill = `Are you sure you want to deny Reimbursement ${reimbursementId}?`;
+        let approveButton=`<button id='reimbursementResponseSumitDeny' onclick = deny(${reimbursementId})>Deny</button>`;
+        popUpContentHeader.innerHTML = popUpContentHeaderFill;
+        reimbursementResponseSumit.innerHTML = approveButton;
+    }
+    async function approve(reimbursementId){
+        const getReimbursement = await fetch(`http://localhost:5000/reimbursement/${reimbursementId}`);
+        const reimbursement = await getReimbursement.json();
+        const approvedReimbursement = {
+            "reimbursementId": Number(reimbursement.reimbursementId),
+            "reimbursementAmount":null,
+            "reimbursementState": "approved",
+            "reimbursementLastDayModified": Number(Math.floor(Date.now()/ 1000)),
+            "reimbursementMessage": null,
+            "reimbursementResponse": reimbursementResponse.value,
+            "reviewerId": Number(employeeId),
+            "employeeId": null};
+
+            const typeOfMethod ={
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(approvedReimbursement)
+            };
+            let url = `http://localhost:5000/reimbursement/${employeeId}`
+            const putReimbursement = await fetch(url, typeOfMethod);
+            getAll();
+            closePopUp();
+    }
+    async function deny(reimbursementId){
+        const getReimbursement = await fetch(`http://localhost:5000/reimbursement/${reimbursementId}`);
+        const reimbursement = await getReimbursement.json();
+        const approvedReimbursement = {
+            "reimbursementId": Number(reimbursement.reimbursementId),
+            "reimbursementAmount":null,
+            "reimbursementState": "denied",
+            "reimbursementLastDayModified": Number(Math.floor(Date.now()/ 1000)),
+            "reimbursementMessage": null,
+            "reimbursementResponse": reimbursementResponse.value,
+            "reviewerId": Number(employeeId),
+            "employeeId": null};
+
+            const typeOfMethod ={
+                method:'PUT',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(approvedReimbursement)
+            };
+            let url = `http://localhost:5000/reimbursement/${employeeId}`
+            const putReimbursement = await fetch(url, typeOfMethod);
+            getAll();
+            closePopUp();
+    }
+
+    function requestReimbursement(){
+        window.location.href = "request_reimbursement.html";
+    }
+
+    function unixToDate(timestamp){
+        let fullTime = new Date(timestamp * 1000);
+        let months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        let year = fullTime.getFullYear();
+        let month = months[fullTime.getMonth()];
+        let date = fullTime.getDate();
+        let time = date + ' ' + month + ' ' + year;
+        return time;
+
+
+    }
+</script>
+</html>

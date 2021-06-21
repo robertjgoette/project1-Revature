@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="css/style.css" rel='stylesheet'/>
+    <title>Statistics</title>
+</head>
+<body>
+    <header>
+        <div class="navBar">
+            <h2 style="margin: 0;padding-top: 10px;">The Dragon Lair</h2>
+            <div id="top-bar" class="navBar__group">
+                <div id="mainButtons" class="navBar__group__links">
+                    <a id="backToHome" onclick="backToHome()">Back To Home</a>
+                </div>
+                <a id="logOut" class="navBar__group__links" onclick="logOut()">Log Out</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="tables">
+        <h3>All Employee Remburstments</h3>
+        <table class="statisticsTable">
+            <thead><th>EmployeeId</th><th>Employee Name</th><th>Amount Reimbursed</th></thead>
+            <tbody id="statisticsTableBody"></tbody>
+        </table>
+    </div>
+    <div class="statisticsCharts">
+        <div style="width:50%; margin-left: auto; margin-right: auto">
+            <h3>All Employee Remburstments</h3>
+            <div class="statisticsCharts__chart">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+        <div style = "margin-left: auto; margin-right: auto">
+            <h3>How many remburstments are in each state</h3>
+            <div class="statisticsCharts__chart">
+                <canvas id="myChart2"></canvas>
+            </div>
+        </div>
+    </div>
+</body>
+<script src ="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const statisticsTableBody = document.getElementById("statisticsTableBody")
+    let employeesArray  = [];
+    let amountArray = [];
+    isPending = 0;
+    isApproved = 0;
+    isDenied = 0;
+    getAll();
+    getAllStatistics();
+    function backToHome(){
+        window.location.href = "employee_page.html";
+    }
+    async function getAllStatistics(){
+        const response = await fetch("http://localhost:5000/statistics");
+        const statisticsTable = await response.json();
+        let reimbursementTableBodyFill = "";
+        for (let id in statisticsTable){
+            const response = await fetch(`http://localhost:5000/employee/${id}`);
+            const employee = await response.json();
+            employeesArray.push(employee.employeeFirstName + " " + employee.employeeLastName)
+            amountArray.push(statisticsTable[id])
+            reimbursementTableBodyFill += `<tr> 
+            <td>${id}</td>
+            <td>${employee.employeeFirstName} ${employee.employeeLastName}</td>
+            <td>${statisticsTable[id]}</td>
+            </tr>`
+        }
+        statisticsTableBody.innerHTML = reimbursementTableBodyFill;
+        tableBuilder();
+    };
+    async function getAll(){
+        const response = await fetch("http://localhost:5000/reimbursement/all");
+        const reimbursementTable = await response.json();
+        reimbursementTable.map(reimbursement => isPendingM(reimbursement))
+        reimbursementTable.map(reimbursement => isApprovedM(reimbursement))
+        reimbursementTable.map(reimbursement => isDeniedM(reimbursement))
+    }
+
+    // Table builders for managers
+    function isPendingM(reimbursement){
+        if(reimbursement.reimbursementState === "pending"){
+            isPending += 1;
+        }
+    }
+    function isDeniedM(reimbursement){
+        if(reimbursement.reimbursementState === "denied"){
+            isDenied += 1;
+        }
+    }
+    function isApprovedM(reimbursement){
+        if(reimbursement.reimbursementState === "approved"){
+            isApproved += 1;
+        }
+    }
+
+    function tableBuilder(){
+        data = {
+            labels: employeesArray ,
+            datasets: [{
+                label: 'Amount Reimbursed',
+                backgroundColor: '#4E76FA',
+                borderColor: '1958FA',
+                data: amountArray,
+            }]
+        };
+        const config = {
+            type: 'bar',
+            data,
+            options: {}
+        };
+        let myChart = new Chart(
+            document.getElementById('myChart'), config);
+        const labelArray =["Pending", "Denied", "Approved"]
+        console.log(isPending)
+        data = {
+        labels: labelArray, //employeesArray ,
+        datasets: [{
+            label: "dataset1",
+            backgroundColor: ['#FA7895','#60D1FA', '#FAEF46'],
+            borderColor: ['#AD405B', '#318CAD', '#ADA739'],
+            data: [isPending, isDenied, isApproved], //amountArray,
+            }]
+        };        
+        const config2 = {
+            type: 'pie',
+            data,
+            options: {}
+        };
+        let myChart2 = new Chart(
+            document.getElementById('myChart2'), config2);
+    }
+</script>
+</html>
