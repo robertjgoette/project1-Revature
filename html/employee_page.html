@@ -24,7 +24,7 @@
     </div>
     <div id="reimbursementPending" class="tables inactive">
         <table id="reimbursementPendingTable" class="tables__reimbursement">
-            <thead id="reimbursementPendingTableHead"></thead>
+            <thead id="reimbursementPendingTableHead"><th>Day Added</th><th>Employee ID</th><th>Amount</th><th>Message</th><th>Approve/Deny</th></thead>
             <tbody id="reimbursementPendingTableBody"></tbody>
         </table>
     </div>
@@ -237,7 +237,7 @@
         window.location.href = "statistics_page.html";
     }
     function logOut(){
-        sessionStorage.setItem("employeeId", 0);
+        sessionStorage.setItem("accountID", 0);
         window.location.href = "index.html";
     }
     function closePopUp(){
@@ -322,8 +322,6 @@
         let date = fullTime.getDate();
         let time = date + ' ' + month + ' ' + year;
         return time;
-
-
     }
 </script>
 </html>
