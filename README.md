@@ -1,10 +1,8 @@
 # project1-Revature
- project1-Revature
-# PROJECT NAME
 
 ## Project Description
 
-Here goes your awesome project description!
+A way to track reimbursements from emloyees and to approve or deny them as a manager.
 
 ## Technologies Used
 
